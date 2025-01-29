@@ -27,7 +27,7 @@ The script organises items into the following categories:
 1. Download or clone the repository:
    ```bash
    git clone https://github.com/yourusername/organise-my-mac.git
-```
+   
 
 2. Navigate to the project folder:
     
