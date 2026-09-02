@@ -31,7 +31,7 @@ def organise_folders_by_content(base_path):
     """
     # Define file type categories and their extensions
     file_categories = {
-        "Images": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".svg"],
+        "Images": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".svg", ".webp", ".heic", ".heif"],
         "Documents": [".pdf", ".doc", ".docx", ".txt", ".xls", ".xlsx", ".ppt", ".pptx"],
         "Audio": [".mp3", ".wav", ".aac", ".flac", ".ogg"],
         "Videos": [".mp4", ".mov", ".avi", ".mkv", ".flv", ".wmv"],
