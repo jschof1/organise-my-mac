@@ -128,3 +128,50 @@ Contributions are welcome! Feel free to fork the repository and submit a pull re
 ## License
 
 This project is licensed under the MIT License.
+
+## Optional macOS resource guard
+
+`resource_guard.py` is a separate Python 3 standard-library tool. It does not change
+the organiser. Run it headlessly on a laptop or Mac Mini:
+
+```sh
+python3 resource_guard.py status --json
+python3 resource_guard.py check
+python3 resource_guard.py run -- make
+python3 resource_guard.py monitor
+python3 -B -m unittest -v test_resource_guard
+```
+
+Only commands explicitly passed to `run --` are gated. It refuses when the home
+volume has less than 10 GiB available, one-minute load exceeds the logical CPU
+count, measurements fail, or another guarded job holds the per-user `flock`.
+Exactly 10 GiB and load equal to CPU count are allowed. `check` uses the same
+gate and exits nonzero when unsuitable; `status` reports without starting work.
+These are point-in-time checks, not reservations of disk or CPU capacity.
+
+The lock stays held throughout the direct child command. The child inherits the
+lock descriptor, including if the guard process exits unexpectedly. Daemonised
+or detached work that closes inherited descriptors is outside this contract;
+wrap foreground commands. `run` uses an argument list without shell evaluation,
+adds 10 to niceness through macOS `nice`, and defaults only unset worker variables
+to `CMAKE_BUILD_PARALLEL_LEVEL=2`, `UV_THREADPOOL_SIZE=2`, `MAKEFLAGS=-j2`.
+Explicit environment settings win. The child exit code is retained (signals use
+the conventional 128 + signal exit status).
+
+Disk levels are critical below 10 GiB, low below 25 GiB, and healthy from 25 GiB.
+Free capacity comes from available filesystem blocks on the actual home volume.
+Jack Drive is available only at a real `/Volumes/Jack Drive` mount whose
+`diskutil info -plist` reports VolumeUUID `77835823-7D54-386B-B6C2-2E65AB80C5B8`,
+the expected mount point and no explicit Mounted=false. macOS may omit Mounted;
+the actual mount check remains required. Missing or mismatched volumes report
+unavailable with null free capacity; a fallback directory is never counted.
+
+`monitor` performs one cheap pass and atomically replaces the bounded latest
+`~/.local/state/mac-resource-guard/status.json`; it keeps no history. It attempts
+a local macOS notification for low/critical disk or high load, at most once per
+hour across all alerts, including failed attempts. Notification errors remain
+visible in the saved status and subsequent `status` output. Headless checks do
+not need a notification session. Repeated scheduling and launchd installation
+are left to the operator; there is no `install` command. Monitor only reports
+and alerts: it never deletes/moves user files or kills/suspends jobs or apps.
+Both the state directory and lock paths resolve the current user's home at runtime.
