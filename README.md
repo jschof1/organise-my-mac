@@ -1,5 +1,11 @@
 # Organise My Mac
 
+Install the resource guard for this Mac user with `python3 install_resource_guard.py`.
+It installs `~/.local/bin/mac-resource-guard` and a launchd pressure check every five
+minutes. To uninstall the monitor, run
+`launchctl bootout gui/$(id -u)/com.jack.mac-resource-guard` and remove
+`~/Library/LaunchAgents/com.jack.mac-resource-guard.plist`.
+
 Organise My Mac is a Python script that helps you organise files and folders on your Mac by categorising them into predefined folders (e.g., Images, Documents, Videos). It's a simple and efficient way to keep your directories neat and tidy.
 
 ## Features
